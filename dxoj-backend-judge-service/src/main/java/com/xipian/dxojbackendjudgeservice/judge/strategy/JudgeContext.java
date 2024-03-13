@@ -1,5 +1,6 @@
 package com.xipian.dxojbackendjudgeservice.judge.strategy;
 
+import com.xipian.dxojbackendmodel.model.codesandbox.ExecuteCodeResponse;
 import com.xipian.dxojbackendmodel.model.codesandbox.JudgeInfo;
 import com.xipian.dxojbackendmodel.model.dto.question.JudgeCase;
 import com.xipian.dxojbackendmodel.model.entity.Question;
@@ -14,11 +15,13 @@ import java.util.List;
 @Data
 public class JudgeContext {
 
-    private JudgeInfo judgeInfo;
+    // private JudgeInfo judgeInfo;
+
+    private ExecuteCodeResponse executeCodeResponse;
 
     private List<String> inputList;
 
-    private List<String> outputList;
+    // private List<String> outputList;
 
     private List<JudgeCase> judgeCaseList;
 

@@ -28,6 +28,12 @@ public class QuestionInnerController implements QuestionFeignClient {
         return questionService.getById(questionId);
     }
 
+    @PostMapping("/update")
+    @Override
+    public boolean updateQuestionById(Question question) {
+        return questionService.updateById(question);
+    }
+
     @GetMapping("/question_submit/get/id")
     @Override
     public QuestionSubmit getQuestionSubmitById(@RequestParam("questionId") long questionSubmitId) {
@@ -38,6 +44,18 @@ public class QuestionInnerController implements QuestionFeignClient {
     @Override
     public boolean updateQuestionSubmitById(@RequestBody QuestionSubmit questionSubmit) {
         return questionSubmitService.updateById(questionSubmit);
+    }
+
+    @PostMapping("/update/Num")
+    @Override
+    public boolean updateQuestionNumById(Question question) {
+        boolean update = questionService.update().eq("id", question.getId())
+                .setSql(question.getAcceptedNum() != 0, "acceptedNum = acceptedNum + 1")
+                .setSql(question.getSubmitNum() != 0, "submitNum = submitNum + 1")
+                .setSql(question.getThumbNum() != 0, "thumbNum = thumbNum + 1")
+                .setSql(question.getFavourNum() != 0, "favourNum = favourNum + 1")
+                .update();
+        return update;
     }
 
 }

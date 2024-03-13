@@ -1,6 +1,7 @@
 package com.xipian.dxojbackendjudgeservice.judge.strategy;
 
 import cn.hutool.json.JSONUtil;
+import com.xipian.dxojbackendmodel.model.codesandbox.ExecuteCodeResponse;
 import com.xipian.dxojbackendmodel.model.codesandbox.JudgeInfo;
 import com.xipian.dxojbackendmodel.model.dto.question.JudgeCase;
 import com.xipian.dxojbackendmodel.model.dto.question.JudgeConfig;
@@ -22,17 +23,30 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
      */
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
-        JudgeInfo judgeInfo = judgeContext.getJudgeInfo();
+        ExecuteCodeResponse executeCodeResponse = judgeContext.getExecuteCodeResponse();
+        JudgeInfo judgeInfo = executeCodeResponse.getJudgeInfo();
         Long memory = Optional.ofNullable(judgeInfo.getMemory()).orElse(0L);
         Long time = Optional.ofNullable(judgeInfo.getTime()).orElse(0L);
         List<String> inputList = judgeContext.getInputList();
-        List<String> outputList = judgeContext.getOutputList();
+        List<String> outputList = executeCodeResponse.getOutputList();
         Question question = judgeContext.getQuestion();
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaseList();
         JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.ACCEPTED;
         JudgeInfo judgeInfoResponse = new JudgeInfo();
         judgeInfoResponse.setMemory(memory);
         judgeInfoResponse.setTime(time);
+        // 代码沙箱编译错误
+        if (executeCodeResponse.getStatus()==2){
+            judgeInfoMessageEnum = JudgeInfoMessageEnum.COMPILE_ERROR;
+            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
+            return judgeInfoResponse;
+        }
+        // 代码沙箱运行错误
+        if (executeCodeResponse.getStatus()==3){
+            judgeInfoMessageEnum = JudgeInfoMessageEnum.RUNTIME_ERROR;
+            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
+            return judgeInfoResponse;
+        }
         // 先判断沙箱执行的结果输出数量是否和预期输出数量相等
         if (outputList.size() != inputList.size()) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
@@ -58,8 +72,8 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
-        // Java 程序本身需要额外执行 10 秒钟
-        long JAVA_PROGRAM_TIME_COST = 10000L;
+        // Java 程序本身需要额外执行 10 毫秒
+        long JAVA_PROGRAM_TIME_COST = 10L;
         if ((time - JAVA_PROGRAM_TIME_COST) > needTimeLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.TIME_LIMIT_EXCEEDED;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());

@@ -16,6 +16,7 @@ import com.xipian.dxojbackendmodel.model.dto.questionsubmit.QuestionSubmitQueryR
 import com.xipian.dxojbackendmodel.model.entity.Question;
 import com.xipian.dxojbackendmodel.model.entity.QuestionSubmit;
 import com.xipian.dxojbackendmodel.model.entity.User;
+import com.xipian.dxojbackendmodel.model.enums.QuestionSubmitLanguageEnum;
 import com.xipian.dxojbackendmodel.model.vo.QuestionSubmitVO;
 import com.xipian.dxojbackendmodel.model.vo.QuestionVO;
 import com.xipian.dxojbackendquestionservice.service.QuestionService;
@@ -60,6 +61,7 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
         if (questionAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -97,6 +99,7 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -308,7 +311,16 @@ public class QuestionController {
         if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 登录才能点赞
+        if (questionSubmitAddRequest.getCode() == null || questionSubmitAddRequest.getCode().length() == 0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"代码不能为空");
+        }
+        if (questionSubmitAddRequest.getLanguage()== null || questionSubmitAddRequest.getLanguage().length() == 0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"语言不能为空");
+        }
+        if (!questionSubmitAddRequest.getLanguage().equals(QuestionSubmitLanguageEnum.JAVA.getValue())){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"目前暂只支持java语言");
+        }
+        // 登录才能提交
         final User loginUser = userFeignClient.getLoginUser(request);
         long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(questionSubmitId);

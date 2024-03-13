@@ -20,7 +20,7 @@ import java.util.UUID;
  * @author <a href="https://github.com/nobitaxipian">XIPIAN</a>
  **/
 @Aspect
-// @Component
+@Component
 @Slf4j
 public class LogInterceptor {
 

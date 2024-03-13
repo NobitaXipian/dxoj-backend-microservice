@@ -1,6 +1,7 @@
 package com.xipian.dxojbackendjudgeservice.judge.strategy;
 
 import cn.hutool.json.JSONUtil;
+import com.xipian.dxojbackendmodel.model.codesandbox.ExecuteCodeResponse;
 import com.xipian.dxojbackendmodel.model.codesandbox.JudgeInfo;
 import com.xipian.dxojbackendmodel.model.dto.question.JudgeCase;
 import com.xipian.dxojbackendmodel.model.dto.question.JudgeConfig;
@@ -21,11 +22,12 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
      */
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
-        JudgeInfo judgeInfo = judgeContext.getJudgeInfo();
+        ExecuteCodeResponse executeCodeResponse = judgeContext.getExecuteCodeResponse();
+        JudgeInfo judgeInfo = executeCodeResponse.getJudgeInfo();
         Long memory = judgeInfo.getMemory();
         Long time = judgeInfo.getTime();
         List<String> inputList = judgeContext.getInputList();
-        List<String> outputList = judgeContext.getOutputList();
+        List<String> outputList = executeCodeResponse.getOutputList();
         Question question = judgeContext.getQuestion();
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaseList();
         JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.ACCEPTED;

@@ -23,7 +23,7 @@ spring:
     password: root
   # Redis 配置
   redis:
-    database: 1
+    database: 2
     host: localhost
     port: 6379
     timeout: 5000
