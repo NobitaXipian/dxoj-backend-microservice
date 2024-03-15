@@ -18,6 +18,7 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
 
     /**
      * 执行判题
+     *
      * @param judgeContext
      * @return
      */
@@ -36,13 +37,13 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
         judgeInfoResponse.setMemory(memory);
         judgeInfoResponse.setTime(time);
         // 代码沙箱编译错误
-        if (executeCodeResponse.getStatus()==2){
+        if (executeCodeResponse.getStatus() == 2) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.COMPILE_ERROR;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
         // 代码沙箱运行错误
-        if (executeCodeResponse.getStatus()==3){
+        if (executeCodeResponse.getStatus() == 3) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.RUNTIME_ERROR;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
@@ -56,7 +57,8 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
         // 依次判断每一项输出和预期输出是否相等
         for (int i = 0; i < judgeCaseList.size(); i++) {
             JudgeCase judgeCase = judgeCaseList.get(i);
-            if (!judgeCase.getOutput().equals(outputList.get(i))) {
+            String outputStr = outputList.get(i).replaceAll("\\\\r|\\\\n", " ").trim();
+            if (!judgeCase.getOutput().equals(outputStr)) {
                 judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
                 judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
                 return judgeInfoResponse;
